@@ -281,3 +281,32 @@ SELECT
 FROM sys.database_files;
 
 
+--Migracion e Importacion de datos
+
+	--Importacion de datos desde csv. Ejemplo
+	BULK INSERT donantes
+	FROM 'C:\import\donantes.csv'
+	WITH (
+		FIRSTROW = 2,               
+		FIELDTERMINATOR = ',',     
+		ROWTERMINATOR = '\n',      
+		TABLOCK
+	);
+	GO
+
+	--Migracion de datos desde otra base. Ejemplo
+	INSERT INTO donaciones (fecha_donacion, id_evento, id_donante)
+	SELECT fecha_donacion, id_evento, id_donante
+	FROM ONG_OLD.dbo.donaciones;
+	GO
+
+	--Importacion manual de datos. Ejemplo
+	INSERT INTO recursos (nombre, cantidad)
+	VALUES ('nombre', 1111)
+
+--ANDREA
+--Se habilitó la importación de datos provenientes de archivos 
+--CSV mediante el asistente de SQL Server y el comando 
+--BULK INSERT. También se estableció un proceso de migración 
+--entre bases mediante INSERT INTO...SELECT e importacion 
+--manual de datos por medio de INSERT INTO...VALUES
