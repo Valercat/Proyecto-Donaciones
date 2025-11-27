@@ -5,6 +5,11 @@ RESTORE DATABASE Donaciones_ONG
 FROM DISK = 'C:\backups\Donaciones_ONG.bak'
 WITH REPLACE, RECOVERY, STATS = 5;
 GO
+
+BACKUP DATABASE Donaciones_ONG
+TO DISK = 'C:\backups\Donaciones_ONG.bak'
+WITH FORMAT, INIT;
+
 --------------------------------------------------------------
 /*
     Proyecto: Sistema de Donaciones
@@ -142,10 +147,64 @@ CREATE ROLE rol_admin
 CREATE ROLE rol_reader
 CREATE ROLE rol_mantenimiento
 
+--SCHEMA
+	--Creacion de schemas
+	CREATE SCHEMA donaciones;
+	GO
+
+	CREATE SCHEMA aporte;
+	GO
+
+	CREATE SCHEMA eventos;
+	GO
+
+	CREATE SCHEMA proyectos;
+	GO
+
+	CREATE SCHEMA personas;
+	GO
+
+	--Insercion de tablas en schemas
+		--Donaciones
+		ALTER SCHEMA donaciones TRANSFER dbo.donaciones
+		ALTER SCHEMA donaciones TRANSFER dbo.donacionesxMonetario
+		ALTER SCHEMA donaciones TRANSFER dbo.donacionesxRecursos
+		ALTER SCHEMA donaciones TRANSFER dbo.donacionesxProyectos
+		ALTER SCHEMA donaciones TRANSFER dbo.donacionesxBeneficiario
+		--Aporte
+		ALTER SCHEMA aporte TRANSFER dbo.recursos
+		ALTER SCHEMA aporte TRANSFER dbo.monetario
+		--Eventos
+		ALTER SCHEMA eventos TRANSFER dbo.recaudaciones_eventos
+		--Proyectos
+		ALTER SCHEMA proyectos TRANSFER dbo.proyectos
+		ALTER SCHEMA proyectos TRANSFER dbo.categoria
+		--Personas
+		ALTER SCHEMA personas TRANSFER dbo.donantes
+		ALTER SCHEMA personas TRANSFER dbo.beneficiario
+		ALTER SCHEMA personas TRANSFER dbo.tipo_beneficiario
+
 --Asignacion de permisos
-GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: dbo TO rol_admin;
-GRANT SELECT ON SCHEMA :: dbo TO rol_reader;
-GRANT ALTER, CONTROL, REFERENCES, VIEW DEFINITION ON SCHEMA :: dbo TO rol_mantenimiento;
+	--rol_reader
+	GRANT SELECT ON SCHEMA::donaciones TO rol_reader;
+	GRANT SELECT ON SCHEMA::aporte TO rol_reader;
+	GRANT SELECT ON SCHEMA::eventos TO rol_reader;
+	GRANT SELECT ON SCHEMA::proyectos TO rol_reader;
+	GRANT SELECT ON SCHEMA::personas TO rol_reader;
+	--rol_mantenimiento
+	GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::donaciones TO rol_mantenimiento;
+	GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::aporte TO rol_mantenimiento;
+	GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::eventos TO rol_mantenimiento;
+	GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::proyectos TO rol_mantenimiento;
+	GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::personas TO rol_mantenimiento;
+	--rol_admin
+	GRANT CONTROL ON SCHEMA::donaciones TO rol_admin;
+	GRANT CONTROL ON SCHEMA::aporte TO rol_admin;
+	GRANT CONTROL ON SCHEMA::eventos TO rol_admin;
+	GRANT CONTROL ON SCHEMA::proyectos TO rol_admin;
+	GRANT CONTROL ON SCHEMA::personas TO rol_admin;
+	GRANT CREATE TABLE TO rol_admin;
+
 
 --Asignacion de roles
 ALTER ROLE rol_admin ADD MEMBER adminUser;
