@@ -38,80 +38,143 @@ GO
 
 USE Donaciones_ONG
 GO
+
 --Creacion de tablas
-
 CREATE TABLE donantes (
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	nombre VARCHAR(50),
-	correo VARCHAR(100),
-	telefono VARCHAR(9) --Para esto solo se tomara como numeros tipo '0000-0000'
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, --4 bytes
+	nombre VARCHAR(50), --50 + 2 = 52 bytes
+	correo VARCHAR(100), --100 + 2 = 102 bytes
+	telefono VARCHAR(9) --9 + 2 = 11 bytes  --Para esto solo se tomara como numeros tipo '0000-0000'
 );
 GO
-
+--Filas estimadas: 2000
+--Tamaño Filas: 4+52+102+11 : 169 bytes
+--Tamaño total = (169 + 7) * 2000 /(1024*1024) = 0.335 MB
+--Factor crecimiento 1.3
+-- 0.335* 1.3  = 4.36 MB
 CREATE TABLE recaudaciones_eventos (
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	nombre VARCHAR(50),
-	descripcion VARCHAR(200)
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, --4 bytes 
+	nombre VARCHAR(50), --50 + 2 = 52
+	descripcion VARCHAR(200) -- 200 + 2 = 202 bytes 
 );
 GO
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+52+202 : 258 bytes
+--Tamaño total = (258 + 7) * 1000 / (1024*1024) = 0.252 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.328 MB
 
 CREATE TABLE donaciones (
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	fecha_donacion DATE,
-	id_evento INT DEFAULT NULL,
-	id_donante INT NOT NULL,
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, --4 bytes
+	fecha_donacion DATE, --3 bytes
+	id_evento INT DEFAULT NULL, --4 bytes
+	id_donante INT NOT NULL, -- 4 bytes
 
 	FOREIGN KEY (id_donante) REFERENCES donantes(id),
     FOREIGN KEY (id_evento) REFERENCES recaudaciones_eventos(id)
 );
 GO
 
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+3+4+4 :15 bytes
+--Tamaño total = (15 + 7) * 1000 / (1024*1024) = 0.021 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.027 MB
+
 CREATE TABLE recursos(
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	nombre VARCHAR(50),
-	cantidad INT NOT NULL
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, --4 bytes
+	nombre VARCHAR(50), -- 50 + 2 = 52
+	cantidad INT NOT NULL --4 bytes
 );
 GO
+
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+52+4 :60 bytes
+--Tamaño total = (60 + 7) * 1000 / (1024*1024) = 0.064 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.083 MB
 
 CREATE TABLE donacionesXrecursos(
-	PRIMARY KEY (id_donacion, id_recursos),
-	id_donacion INT FOREIGN KEY REFERENCES donaciones(id),
-	id_recursos INT FOREIGN KEY REFERENCES recursos(id)
+	PRIMARY KEY (id_donacion, id_recursos), --4 + 4 = 8 bytes
+	id_donacion INT FOREIGN KEY REFERENCES donaciones(id), --4 bytes
+	id_recursos INT FOREIGN KEY REFERENCES recursos(id)	--4 bytes
 );
 GO
+
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+4+8 :16 bytes
+--Tamaño total = (16 + 7) * 1000 / (1024*1024) = 0.021 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.028 MB
 
 CREATE TABLE monetario(
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	monto DECIMAL(18,2),
-	tipo VARCHAR(20) --los tipos se basaran en efectivo o transferencia
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, -- 4 bytes
+	monto DECIMAL(18,2), -- 9 bytes
+	tipo VARCHAR(20) -- 20 + 2 = 22 bytes --los tipos se basaran en efectivo o transferencia
 );
 GO
 
+--Filas estimadas 1,000
+--Tamaño Filas: 22+9+4 :35 bytes
+--Tamaño total = (35 + 7) * 1000 / (1024*1024) = 0.040 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.052 MB
+
+
 CREATE TABLE donacionesXmonetario(
-	PRIMARY KEY (id_donacion, id_monetario),
-	id_donacion INT FOREIGN KEY REFERENCES donaciones(id),
-	id_monetario INT FOREIGN KEY REFERENCES monetario(id)
+	PRIMARY KEY (id_donacion, id_monetario), --4 + 4 = 8 bytes
+	id_donacion INT FOREIGN KEY REFERENCES donaciones(id), -- 4 bytes
+	id_monetario INT FOREIGN KEY REFERENCES monetario(id) -- 4 bytes
 	
 );
 GO
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+4+8 :16 bytes
+--Tamaño total = (16 + 7) * 1000 / (1024*1024) = 0.021 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.028 MB
+
+CREATE TABLE categoria (
+    id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, --4 bytes
+    nombre VARCHAR(50) --50 + 2 = 52 bytes
+);
+GO
+
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+52 :56 bytes
+--Tamaño total = (56 + 7) * 1000 / (1024*1024) = 0.060 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.078 MB
 
 CREATE TABLE proyectos(
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	nombre VARCHAR(100),
-	descripcion VARCHAR(200),
-	fecha_realizar DATETIME,
-	id_categoria INT NOT NULL,
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, -- 4 Bytes
+	nombre VARCHAR(100), -- 100+2 = 102 bytes
+	descripcion VARCHAR(200), --200 + 2 = 202 bytes
+	fecha_realizar DATETIME, -- 8 bytes
+	id_categoria INT NOT NULL, -- 4 bytes
 
 	FOREIGN KEY(id_categoria) REFERENCES categoria(id)
 );
 
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+102+202+8+4 :320 bytes
+--Tamaño total = (320 + 7) * 1000 / (1024*1024) = 0.31 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.41 MB
+
 GO
 CREATE TABLE donacionesXproyectos (
-	PRIMARY KEY (id_donacion, id_proyecto),
-	id_donacion INT FOREIGN KEY REFERENCES donaciones(id),
-	id_proyecto INT FOREIGN KEY REFERENCES proyectos(id),
+	PRIMARY KEY (id_donacion, id_proyecto), -- 4 + 4 = 8 bytes 
+	id_donacion INT FOREIGN KEY REFERENCES donaciones(id), -- 4 bytes
+	id_proyecto INT FOREIGN KEY REFERENCES proyectos(id), -- 4 bytes
 );
 GO
+
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+4+8 :16 bytes
+--Tamaño total = (16 + 7) * 1000 / (1024*1024) = 0.021 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.028 MB
 
 CREATE TABLE tipo_beneficiario(
 	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
@@ -119,22 +182,41 @@ CREATE TABLE tipo_beneficiario(
 );
 GO
 
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+52 :56 bytes
+--Tamaño total = (56 + 7) * 1000 / (1024*1024) = 0.060 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.078 MB
+
 CREATE TABLE beneficiario (
-	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	nombre VARCHAR(50) NOT NULL,
-	informacion VARCHAR(200),
-	contacto VARCHAR(9),
-	id_tipobene INT,
+	id INT PRIMARY KEY IDENTITY(1,1) NOT NULL, -- 4 bytes
+	nombre VARCHAR(50) NOT NULL, -- 50 + 2 = 52 bytes
+	informacion VARCHAR(200), -- 200 + 2 = 202 bytes
+	contacto VARCHAR(9), -- 9 + 2 = 11 bytes
+	id_tipobene INT, -- 4 bytes
 	
 	FOREIGN KEY(id_tipobene) REFERENCES tipo_beneficiario(id),
 );
 GO
 
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+52+202+11+4 : 273 bytes
+--Tamaño total = (273 + 7) * 1000 / (1024*1024) = 0.28 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.34 MB
+
+
 CREATE TABLE donacionesXbeneficiario (
-	PRIMARY KEY (id_donacion, id_beneficiario),
-	id_donacion INT FOREIGN KEY REFERENCES donaciones(id),
-	id_beneficiario INT FOREIGN KEY REFERENCES beneficiario(id),
+	PRIMARY KEY (id_donacion, id_beneficiario), -- 4 + 4 = 8 bytes
+	id_donacion INT FOREIGN KEY REFERENCES donaciones(id), -- 4 bytes
+	id_beneficiario INT FOREIGN KEY REFERENCES beneficiario(id), -- 4 bytes
 );
+
+-- Filas estimadas 1,000
+--Tamaño Filas: 4+4+8 :16 bytes
+--Tamaño total = (16 + 7) * 1000 / (1024*1024) = 0.021 MB
+--Factor crecimiento 1.3
+-- 0.252 * 1.3  = 0.028 MB
 
 --Creacion de usuarios
 CREATE USER adminUser WITH PASSWORD = 'adminUser1234';​
@@ -415,9 +497,3 @@ SELECT *
 FROM sys.fn_get_audit_file('C:\auditoria\*', DEFAULT, DEFAULT);
 
 
---ANDREA
---Se habilitó la importación de datos provenientes de archivos 
---CSV mediante el asistente de SQL Server y el comando 
---BULK INSERT. También se estableció un proceso de migración 
---entre bases mediante INSERT INTO...SELECT e importacion 
---manual de datos por medio de INSERT INTO...VALUES
